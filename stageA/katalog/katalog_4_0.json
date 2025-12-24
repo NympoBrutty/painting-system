@@ -1,0 +1,87 @@
+{
+  "_schema": {
+    "name": "katalog.ops_pack",
+    "version": "4.0.0",
+    "created_at": "2025-12-16T00:00:00+02:00",
+    "updated_at": "2025-12-24T22:00:00+02:00"
+  },
+  "catalog_id": "katalog_4.0",
+  "description": "Stage A Module Catalog — canonical inventory of all modules with contract references",
+  
+  "glossary_ref": "glossary/glossary_v1.json",
+  "contract_schema_ref": "schema/contract_schema_stageA_v4.json",
+  
+  "policies": {
+    "glossary_policy": "strict",
+    "constraints_dsl": {
+      "dsl_version": "1.0",
+      "syntax": "string_expr"
+    },
+    "i18n_policy": {
+      "default_locale": "uk",
+      "supported_locales": ["uk", "en"]
+    }
+  },
+  
+  "statistics": {
+    "total_modules": 3,
+    "by_type": {
+      "PROCESS": 1,
+      "RULESET": 1,
+      "BRIDGE": 1
+    },
+    "by_maturity": {
+      "pilot": 3,
+      "draft": 0,
+      "stable": 0
+    }
+  },
+  
+  "modules": [
+    {
+      "module_id": "A-I-3",
+      "module_abbr": "SPS",
+      "module_type": "BRIDGE",
+      "module_name": {
+        "uk": "СИСТЕМА ПЛАНІВ ТА КАДРУВАННЯ",
+        "en": "SHOT / PLAN SYSTEM"
+      },
+      "version": "1.1.0",
+      "maturity_stage": "pilot",
+      "readiness": 0.95,
+      "contract_path": "contracts/A-I-3_SPS_contract_stageA_FINAL.json",
+      "depends_on": ["A-I-1", "A-I-2"],
+      "description_short": "Канонічна система планів і кадрування (ECU–ELS)"
+    },
+    {
+      "module_id": "A-III-2",
+      "module_abbr": "NSS",
+      "module_type": "RULESET",
+      "module_name": {
+        "uk": "СИСТЕМА НЕГАТИВНОГО ПРОСТОРУ",
+        "en": "NEGATIVE SPACE SYSTEM"
+      },
+      "version": "1.1.0",
+      "maturity_stage": "pilot",
+      "readiness": 0.95,
+      "contract_path": "contracts/A-III-2_NSS_contract_stageA_FINAL.json",
+      "depends_on": ["A-III-0", "A-III-1"],
+      "description_short": "Формалізація негативного простору: коридори, острови, пустоти"
+    },
+    {
+      "module_id": "A-IV-2",
+      "module_abbr": "LINE",
+      "module_type": "PROCESS",
+      "module_name": {
+        "uk": "ЛІНІЙНИЙ МОТОР",
+        "en": "LINE ENGINE"
+      },
+      "version": "1.1.0",
+      "maturity_stage": "pilot",
+      "readiness": 0.95,
+      "contract_path": "contracts/A-IV-2_LINE_contract_stageA_FINAL.json",
+      "depends_on": ["A-IV-1", "A-I-1"],
+      "description_short": "Нормалізація та очищення контурних ліній"
+    }
+  ]
+}
