@@ -1,0 +1,522 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "painting-system.stageA.contract.schema.v4",
+  "title": "Stage A Contract Schema (A-PRACTICAL.contract)",
+  "description": "Canonical JSON Schema for Stage A module contracts. Version 4.0 - synchronized with LINT_SPEC_STAGE_A.md",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "_schema",
+    "module_id",
+    "module_abbr",
+    "module_type",
+    "module_name",
+    "version",
+    "description",
+    "io_contract",
+    "parameters",
+    "parameter_groups",
+    "constraints",
+    "validation",
+    "error_codes",
+    "algorithm",
+    "relations",
+    "test_cases",
+    "policies"
+  ],
+  "properties": {
+    "_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "stage",
+        "maturity_stage",
+        "static_frame_only",
+        "underpainting_intent",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "const": "A-PRACTICAL.contract",
+          "description": "Schema identifier - must be 'A-PRACTICAL.contract'"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Schema version in SemVer format"
+        },
+        "stage": {
+          "type": "string",
+          "enum": ["A.contract_only"],
+          "description": "Stage identifier - Stage A is contract-only (no implementation)"
+        },
+        "maturity_stage": {
+          "type": "string",
+          "enum": ["pilot", "draft", "stable"],
+          "description": "Contract maturity level"
+        },
+        "static_frame_only": {
+          "type": "boolean",
+          "description": "True if module operates on single static frames only"
+        },
+        "underpainting_intent": {
+          "type": "string",
+          "enum": ["structure_only", "structure_plus_masks", "structure_plus_metadata"],
+          "description": "Level of underpainting data produced"
+        },
+        "created_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+02:00$",
+          "description": "Creation timestamp in ISO8601 with Kyiv timezone (+02:00)"
+        },
+        "updated_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+02:00$",
+          "description": "Last update timestamp in ISO8601 with Kyiv timezone (+02:00)"
+        }
+      }
+    },
+    "module_id": {
+      "type": "string",
+      "pattern": "^A-(?:[IVXLCDM]+)-\\d+(?:\\.\\d+)?$",
+      "description": "Module identifier: A-<ROMAN>-<N> format (e.g., A-I-3, A-III-2.1)"
+    },
+    "module_abbr": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]{2,8}$",
+      "description": "Module abbreviation: 2-8 uppercase alphanumeric characters"
+    },
+    "module_type": {
+      "type": "string",
+      "enum": ["RULESET", "PROCESS", "BRIDGE"],
+      "description": "Module type: RULESET (validation), PROCESS (generation), BRIDGE (mapping)"
+    },
+    "module_name": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["uk", "en"],
+      "properties": {
+        "uk": {
+          "type": "string",
+          "minLength": 2,
+          "description": "Module name in Ukrainian"
+        },
+        "en": {
+          "type": "string",
+          "minLength": 2,
+          "description": "Module name in English"
+        }
+      }
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Contract version in SemVer format"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 16,
+      "description": "Detailed module description (min 16 characters)"
+    },
+    "io_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inputs", "outputs"],
+      "properties": {
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/artifactDef" },
+          "description": "Required input artifacts"
+        },
+        "outputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/artifactDef" },
+          "description": "Produced output artifacts"
+        }
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/paramDef" },
+      "description": "Module parameters as key-value object"
+    },
+    "parameter_groups": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "items": { "type": "string" }
+      },
+      "description": "Logical grouping of parameters"
+    },
+    "constraints": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/constraintDef" },
+      "description": "Hard constraints (errors) using DSL expressions"
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rules"],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/validationRuleDef" },
+          "description": "Soft validation rules (warnings)"
+        }
+      }
+    },
+    "error_codes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/errorCodeDef" },
+      "description": "Registry of all error and warning codes"
+    },
+    "algorithm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_registry", "steps"],
+      "properties": {
+        "artifact_registry": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/artifactRegistryDef" },
+          "description": "Registry of all artifacts (public and private)"
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/stepDef" },
+          "description": "Algorithm steps with data flow"
+        }
+      }
+    },
+    "relations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["depends_on", "influences", "conflicts_with"],
+      "properties": {
+        "depends_on": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Module IDs this module depends on"
+        },
+        "influences": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Module IDs this module influences"
+        },
+        "conflicts_with": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Module IDs that conflict with this module"
+        }
+      }
+    },
+    "test_cases": {
+      "type": "array",
+      "minItems": 3,
+      "items": { "$ref": "#/$defs/testCaseDef" },
+      "description": "Test cases (min 3: at least 1 positive, 1 negative)"
+    },
+    "policies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit_policy", "constraints_dsl", "glossary_policy", "i18n_policy"],
+      "properties": {
+        "unit_policy": {
+          "type": "string",
+          "enum": ["strict"],
+          "description": "Unit validation policy"
+        },
+        "constraints_dsl": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["dsl_version", "syntax"],
+          "properties": {
+            "dsl_version": {
+              "type": "string",
+              "description": "DSL version identifier"
+            },
+            "syntax": {
+              "type": "string",
+              "enum": ["string_expr", "if_then"],
+              "description": "Constraint syntax format"
+            }
+          }
+        },
+        "glossary_policy": {
+          "type": "string",
+          "enum": ["strict", "warn", "off"],
+          "description": "Glossary validation policy"
+        },
+        "i18n_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["default_lang", "supported_langs"],
+          "properties": {
+            "default_lang": {
+              "type": "string",
+              "enum": ["uk", "en"],
+              "description": "Default language"
+            },
+            "supported_langs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "enum": ["uk", "en"]
+              },
+              "description": "List of supported languages"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "artifactDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "type", "scope"],
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "minLength": 2,
+          "description": "Artifact identifier"
+        },
+        "type": {
+          "type": "string",
+          "description": "Artifact data type (e.g., mask, json, svg, indices)"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["public", "private"],
+          "description": "Artifact visibility scope"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional artifact description"
+        }
+      }
+    },
+    "artifactRegistryDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "scope"],
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "minLength": 2,
+          "description": "Artifact identifier"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["public", "private"],
+          "description": "Artifact visibility scope"
+        }
+      }
+    },
+    "paramDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "unit", "description"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["float", "int", "boolean", "enum", "string"],
+          "description": "Parameter data type"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unit of measurement (required for all types)"
+        },
+        "range": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "Valid range [min, max] for numeric types"
+        },
+        "default": {
+          "description": "Default value"
+        },
+        "enum": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" },
+          "description": "Allowed values for enum type"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 8,
+          "description": "Parameter description (min 8 characters)"
+        }
+      }
+    },
+    "constraintDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expr", "error_code"],
+      "properties": {
+        "expr": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Constraint expression in DSL format"
+        },
+        "error_code": {
+          "type": "string",
+          "pattern": "^E\\d{3}$",
+          "description": "Error code (E### format)"
+        }
+      }
+    },
+    "validationRuleDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "condition", "severity", "message", "error_code"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Rule name"
+        },
+        "condition": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Condition expression"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["warning"],
+          "description": "Rule severity (always 'warning' for validation rules)"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 8,
+          "description": "Warning message"
+        },
+        "error_code": {
+          "type": "string",
+          "pattern": "^W\\d{3}$",
+          "description": "Warning code (W### format)"
+        }
+      }
+    },
+    "errorCodeDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "level", "title", "message"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[EW]\\d{3}$",
+          "description": "Error/Warning code"
+        },
+        "level": {
+          "type": "string",
+          "enum": ["error", "warning"],
+          "description": "Code severity level"
+        },
+        "title": {
+          "oneOf": [
+            { "type": "string", "minLength": 2 },
+            { "$ref": "#/$defs/i18nText" }
+          ],
+          "description": "Short title (string or i18n object)"
+        },
+        "message": {
+          "oneOf": [
+            { "type": "string", "minLength": 4 },
+            { "$ref": "#/$defs/i18nText" }
+          ],
+          "description": "Detailed message (string or i18n object)"
+        }
+      }
+    },
+    "i18nText": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "uk": { "type": "string", "minLength": 1 },
+        "en": { "type": "string", "minLength": 1 }
+      }
+    },
+    "stepDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "type", "uses", "produces", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^S\\d{3}$",
+          "description": "Step ID (S### format)"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "description": "Step name"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["load", "transform", "filter", "validate", "normalize", "classify", "export", "validate_module"],
+          "description": "Step type"
+        },
+        "uses": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Input artifacts/parameters"
+        },
+        "produces": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Output artifacts"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 8,
+          "description": "Step description"
+        }
+      }
+    },
+    "testCaseDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "name", "input", "expected"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 6,
+          "description": "Test case ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["positive", "negative", "warning"],
+          "description": "Test case type"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 6,
+          "description": "Test case name"
+        },
+        "input": {
+          "type": "object",
+          "description": "Input parameters"
+        },
+        "expected": {
+          "type": "object",
+          "description": "Expected outcome"
+        }
+      }
+    }
+  }
+}
