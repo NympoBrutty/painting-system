@@ -1,7 +1,5 @@
 # Stage A — Contract Canon
 
-[![Stage A CI](https://github.com/YOUR_USERNAME/painting-system/actions/workflows/stageA-ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/painting-system/actions)
-
 Stage A є **єдиним джерелом істини** для проекту «малювання».
 
 Він визначає:
@@ -17,25 +15,42 @@ Stage A **не містить реалізацій** і **не прив'язан
 
 ## Версія
 
+- **Package Version:** 4.1.0
 - **Schema Version:** 4.0.0
 - **Catalog Version:** 4.0.0
 - **Контракти:** 3 пілотних модулі
 
 ## Швидкий старт
 
-### Валідація контрактів
+### Одна кнопка (рекомендовано)
+
+```bash
+# Запустити всю валідацію локально
+python run_stageA.py
+
+# Швидка перевірка (без тестів)
+python run_stageA.py --quick
+
+# Детальний вивід
+python run_stageA.py --verbose
+```
+
+### Окремі команди
 
 ```bash
 # Валідація всіх контрактів
 python stageA/tools/batch_validator.py stageA/contracts \
     --glossary stageA/glossary/glossary_v1.json \
+    --schema stageA/schema/contract_schema_stageA_v4.json \
     --out stageA/_reports
 
 # Запуск тестів
 python -m unittest discover -s stageA/tests -p "test_*.py" -v
 ```
 
-### Генерація нового контракту
+## Як додати новий контракт
+
+### Крок 1: Згенеруй шаблон
 
 ```bash
 python stageA/tools/generate_from_template.py \
@@ -47,28 +62,73 @@ python stageA/tools/generate_from_template.py \
     --out stageA/contracts/A-V-1_TONE_contract_stageA_FINAL.json
 ```
 
-## Структура Stage A
+### Крок 2: Заповни контракт
+
+Відкрий згенерований файл і заміни всі `TODO:` на реальні дані:
+- `description` — детальний опис модуля
+- `io_contract` — входи та виходи
+- `parameters` — параметри з типами та діапазонами
+- `constraints` — жорсткі обмеження
+- `validation.rules` — м'які правила (warnings)
+- `algorithm.steps` — кроки виконання
+- `test_cases` — тестові сценарії
+
+### Крок 3: Валідуй
+
+```bash
+python run_stageA.py
+```
+
+### Крок 4: Додай до каталогу
+
+Відредагуй `stageA/katalog/katalog_4_0.json` — додай новий модуль до масиву `modules`.
+
+### Крок 5: Оновлення глосарію (за потреби)
+
+Якщо використовуєш нові терміни/абревіатури — додай їх до `stageA/glossary/glossary_v1.json`.
+
+### Крок 6: Коміт
+
+```bash
+git add .
+git commit -m "feat(stageA): add A-V-1 TONE contract"
+git push
+```
+
+## Структура репозиторію
 
 ```
-stageA/
-├── contracts/       # Контракти модулів (Stage A)
-│   ├── A-I-3_SPS_contract_stageA_FINAL.json
-│   ├── A-III-2_NSS_contract_stageA_FINAL.json
-│   └── A-IV-2_LINE_contract_stageA_FINAL.json
-├── glossary/        # Глосарій термінів
-│   └── glossary_v1.json
-├── katalog/         # Індекс усіх модулів
-│   └── katalog_4_0.json
-├── schema/          # JSON Schema для контрактів
-│   └── contract_schema_stageA_v4.json
-├── lint/            # Lint-спека + валідатори
-│   ├── LINT_SPEC_STAGE_A.md
-│   └── contract_lint_validator.py
-├── tools/           # Інструменти
-│   ├── batch_validator.py
-│   └── generate_from_template.py
-└── tests/           # Тести
-    └── test_stageA_contracts.py
+painting-system/
+├── README.md
+├── run_stageA.py          # ← Одна кнопка запуску
+├── requirements.txt
+├── .gitignore
+├── .github/
+│   └── workflows/
+│       └── stageA-ci.yml
+└── stageA/
+    ├── __init__.py        # ← Python package
+    ├── contracts/
+    │   ├── A-I-3_SPS_contract_stageA_FINAL.json
+    │   ├── A-III-2_NSS_contract_stageA_FINAL.json
+    │   └── A-IV-2_LINE_contract_stageA_FINAL.json
+    ├── schema/
+    │   └── contract_schema_stageA_v4.json
+    ├── katalog/
+    │   └── katalog_4_0.json
+    ├── glossary/
+    │   └── glossary_v1.json
+    ├── lint/
+    │   ├── __init__.py
+    │   ├── contract_lint_validator.py
+    │   └── LINT_SPEC_STAGE_A.md
+    ├── tools/
+    │   ├── __init__.py
+    │   ├── batch_validator.py
+    │   └── generate_from_template.py
+    └── tests/
+        ├── __init__.py
+        └── test_stageA_contracts.py
 ```
 
 ## Пілотні модулі
@@ -79,81 +139,25 @@ stageA/
 | A-III-2 | NSS | RULESET | Negative Space System | Аналіз негативного простору |
 | A-IV-2 | LINE | PROCESS | Line Engine | Нормалізація контурних ліній |
 
-## Contracts (stageA/contracts/)
+## Contract File Naming Convention
 
-Кожен файл:
-- Описує **один модуль**
-- Має строгий контрактний канон
-- Валідний через **JSON Schema v4 + lint**
-- Містить всі обов'язкові секції:
-  - `_schema` — метадані схеми
-  - `io_contract` — входи/виходи
-  - `parameters` — параметри з одиницями
-  - `constraints` — жорсткі обмеження (помилки)
-  - `validation` — м'які правила (попередження)
-  - `error_codes` — реєстр кодів помилок
-  - `algorithm` — кроки виконання з data flow
-  - `test_cases` — тестові сценарії
-
-### Приклад контракту
-
-```json
-{
-  "_schema": {
-    "name": "A-PRACTICAL.contract",
-    "version": "4.0.0",
-    "stage": "A.contract_only",
-    "maturity_stage": "pilot",
-    "static_frame_only": true,
-    "underpainting_intent": "structure_only",
-    "created_at": "2025-12-24T22:00:00+02:00",
-    "updated_at": "2025-12-24T22:00:00+02:00"
-  },
-  "module_id": "A-I-3",
-  "module_abbr": "SPS",
-  "module_type": "BRIDGE",
-  ...
-}
+**Обов'язковий формат:**
+```
+A-<BLOCK>-<NUM>_<ABBR>_contract_stageA_FINAL.json
 ```
 
-## Schema (stageA/schema/)
+**Приклади:**
+- `A-I-3_SPS_contract_stageA_FINAL.json` ✅
+- `A-III-2_NSS_contract_stageA_FINAL.json` ✅
+- `my_contract.json` ❌
 
-JSON Schema для Stage A контрактів (draft 2020-12):
-- Перевіряє структуру та обов'язкові поля
-- Валідує формати (module_id, timestamps, error codes)
-- Забезпечує типізацію параметрів
-
-## Lint (stageA/lint/)
-
-Семантична валідація контрактів:
-- Required sections
-- Policy rules
-- Constraints DSL format
-- Error code coverage
-- Data flow validation
-- Glossary coverage (optional)
-
-## Glossary (stageA/glossary/)
-
-Єдині визначення термінів:
-- Всі терміни з контрактів **мають бути присутні**
-- Режими перевірки: `strict` / `warn` / `off`
-- Включає одиниці вимірювання та типи артефактів
-
-## Katalog (stageA/katalog/)
-
-Легкий індекс усіх модулів:
-- `module_id`, `module_abbr`, `module_type`
-- `version`, `maturity_stage`, `readiness`
-- Посилання на контракти
-- Залежності між модулями
-
-## CI/CD
-
-GitHub Actions автоматично:
-1. Валідує всі контракти через batch_validator
-2. Запускає тести
-3. Перевіряє синхронізацію з каталогом
+**Що НЕ є контрактом (ігнорується валідатором):**
+- `katalog_*.json`
+- `glossary_*.json`
+- `contract_schema_*.json`
+- `*_report.json`
+- `*_lint.json`
+- `summary.json`
 
 ## Типи модулів
 
@@ -181,9 +185,21 @@ GitHub Actions автоматично:
 
 ## Версіонування
 
-- **Schema version** — версія JSON Schema (4.0.0)
-- **Contract version** — версія конкретного контракту (SemVer)
-- **Maturity stage** — рівень зрілості (`pilot` → `draft` → `stable`)
+| Що | Формат | Приклад |
+|----|--------|---------|
+| Package version | SemVer | 4.1.0 |
+| Schema version | SemVer | 4.0.0 |
+| Contract version | SemVer | 1.1.0 |
+| Maturity stage | enum | pilot → draft → stable |
+
+## CI/CD
+
+GitHub Actions автоматично:
+1. ✅ Валідує всі контракти
+2. ✅ Запускає unit тести
+3. ✅ Зберігає звіти як artifacts
+
+Звіти доступні у вкладці Actions → Artifacts.
 
 ---
 
@@ -192,4 +208,4 @@ Stage B+ — це реалізації.**
 
 ## Ліцензія
 
-MIT License — див. LICENSE файл.
+MIT License
