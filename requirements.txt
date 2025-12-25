@@ -1,0 +1,9 @@
+# Stage A — Requirements
+# =====================
+# Currently no external dependencies required.
+# Python 3.9+ standard library is sufficient.
+#
+# Future additions (when needed):
+# jsonschema>=4.0.0    # For JSON Schema draft 2020-12 validation
+# pyyaml>=6.0          # If YAML config support needed
+# rich>=13.0           # For prettier CLI output
