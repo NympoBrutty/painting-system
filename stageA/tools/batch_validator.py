@@ -139,20 +139,20 @@ def main() -> int:
         else:
             print(f"[WARN] Glossary not found: {gp}", file=sys.stderr)
     
-    # Import validator
+    # Import validator (clean import via package structure)
     try:
-        # Try relative import first
-        lint_dir = Path(__file__).resolve().parents[1] / "lint"
-        sys.path.insert(0, str(lint_dir))
-        from contract_lint_validator import ContractLintValidator
+        from stageA.lint import ContractLintValidator
     except ImportError:
+        # Fallback for direct script execution
         try:
-            # Fallback: try from repo root
-            repo_root = Path(__file__).resolve().parents[2]
-            sys.path.insert(0, str(repo_root))
-            from stageA.lint.contract_lint_validator import ContractLintValidator
+            import sys as _sys
+            _repo_root = Path(__file__).resolve().parents[2]
+            if str(_repo_root) not in _sys.path:
+                _sys.path.insert(0, str(_repo_root))
+            from stageA.lint import ContractLintValidator
         except ImportError as e:
             print(f"[FATAL] Could not import validator: {e}", file=sys.stderr)
+            print("  Hint: Run from repo root or install as package", file=sys.stderr)
             return 2
     
     # Initialize validator
